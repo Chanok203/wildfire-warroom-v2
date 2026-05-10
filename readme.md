@@ -1,8 +1,8 @@
-# ระบบสนับสนุนการควบคุมไฟป่า - หน้างาน (Edge)
+# ระบบสนับสนุนการควบคุมไฟป่า - หน้างาน (Warroom)
 
 ## Requirements
 
-- Services [https://github.com/Chanok203/wildfire-docker](https://github.com/Chanok203/wildfire-docker)
+- Services [https://github.com/Chanok203/wildfire-warroom-docker](https://github.com/Chanok203/wildfire-warroom-docker)
 
 ## Authors
 - นายชนก ปฐมเพทาย (cpathompatai@gmail.com)
