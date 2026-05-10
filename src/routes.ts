@@ -1,30 +1,22 @@
 import { Router } from 'express';
 
-import { droneApiRouter, droneRouter } from '@/modules/drones/drones.route';
 import {
     forecastApiRouter,
     forecastRouter,
 } from '@/modules/forecast/forecast.route';
 import { homeRouter } from '@/modules/home/home.route';
-import {
-    hotspotManagerApiRouter,
-    hotspotManagerRouter,
-} from '@/modules/hotspot-manager/hotspot-manager.route';
-import { windApiRouter, windRouter } from '@/modules/wind/wind.route';
+import { isAuthenticated } from '@/shared/middlewares/auth.middleware';
+import { authRouter } from '@/modules/auth/auth.route';
 
 const router = Router();
 
-router.use('/', homeRouter);
-router.use('/wind', windRouter);
-router.use('/drones', droneRouter);
-router.use('/hotspot-manager', hotspotManagerRouter);
-router.use('/forecast', forecastRouter);
+router.use('/auth', authRouter);
+
+router.use('/', isAuthenticated, homeRouter);
+router.use('/forecast', isAuthenticated, forecastRouter);
 
 const apiRouter = Router();
 
-apiRouter.use('/wind', windApiRouter);
-apiRouter.use('/drones', droneApiRouter);
-apiRouter.use('/hotspot-manager', hotspotManagerApiRouter);
-apiRouter.use('/forecast', forecastApiRouter);
+apiRouter.use('/forecast', isAuthenticated, forecastApiRouter);
 
 export { router, apiRouter };

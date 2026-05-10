@@ -1,21 +1,10 @@
 import 'dotenv/config';
 import http from 'http';
-import { Server } from 'socket.io';
 
 import { app } from '@/app';
 import { config } from '@/configs';
-import { initWindSensorMQTT } from '@/modules/wind/wind.mqtt';
-import { mqttLib } from '@/shared/libs/mqtt.lib';
-import { socketLib } from '@/shared/libs/socketio.lib';
-import { initWorker } from '@/queues/worker';
 
 const httpServer = http.createServer(app);
-
-socketLib.init(httpServer);
-mqttLib.connect(config.mqtt.url);
-
-initWindSensorMQTT();
-initWorker();
 
 const { port, host } = config.app;
 httpServer.listen(port, host, () => {

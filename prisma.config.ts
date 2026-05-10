@@ -7,7 +7,7 @@ const POSTGRES_HOST = '127.0.0.1';
 const POSTGRES_PORT = process.env['POSTGRES_PORT'];
 const POSTGRES_USER = process.env['POSTGRES_USER'];
 const POSTGRES_PASSWORD = process.env['POSTGRES_PASSWORD'];
-const POSTGRES_DB = 'edge';
+const POSTGRES_DB = 'warroom';
 
 const DATABASE_URL = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public`;
 

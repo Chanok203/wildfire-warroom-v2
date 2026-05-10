@@ -1,5 +1,7 @@
 // element
 const initForecastId = window.initForecastId;
+const qgisUrl = window.initQgisUrl;
+
 const refTimeInput = document.getElementById('ref_time');
 const pastMinsInput = document.getElementById('past_mins');
 const futureMinsInput = document.getElementById('future_mins');
@@ -29,7 +31,7 @@ let map = new maplibregl.Map({
             'base-tiles': {
                 type: 'raster',
                 tiles: [
-                    'http://localhost:8001/ows/?MAP=/data/edge.qgs&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=map&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=TRUE',
+                    `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=map&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=TRUE`,
                 ],
                 tileSize: 256,
                 attribution: '&copy; Mae Yom National Park',
@@ -62,7 +64,7 @@ function applyFireFilter(shouldFetch = false) {
     // ถ้าสั่งให้ Fetch ใหม่ (เช่น ตอนกดปุ่ม)
     if (shouldFetch && source) {
         console.log('Fetching fresh data...');
-        const freshWfsUrl = `http://localhost:8001/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`;
+        const freshWfsUrl = `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`;
         source.setData(freshWfsUrl);
 
         // รอให้ข้อมูลใหม่มาค่อยกรอง
@@ -169,7 +171,7 @@ map.addControl(new maplibregl.NavigationControl(), 'top-left');
 function setupFireLayers() {
     map.addSource('fire-source', {
         type: 'geojson',
-        data: `http://localhost:8001/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`,
+        data: `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`,
     });
 
     map.addLayer({
@@ -237,7 +239,7 @@ function setupRouteLayersWCS() {
         // 1. เพิ่ม Source
         map.addSource(route.sourceId, {
             type: 'geojson',
-            data: `http://localhost:8001/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=${route.typeName}&OUTPUTFORMAT=application/json&SIMPLIFY=10`,
+            data: `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=${route.typeName}&OUTPUTFORMAT=application/json&SIMPLIFY=10`,
         });
 
         // 2. เพิ่ม Layer
@@ -291,7 +293,7 @@ function setupRouteLayersWFS() {
         map.addSource(`${route.typeName}-source`, {
             type: 'raster',
             tiles: [
-                `http://localhost:8001/ows/?MAP=/data/edge.qgs&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=${route.typeName}&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=TRUE`,
+                `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=${route.typeName}&CRS=EPSG:3857&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256&FORMAT=image/png&TRANSPARENT=TRUE`,
             ],
             tileSize: 256,
         });
@@ -356,7 +358,7 @@ function setupRouteLayersLazy() {
                     // 1. เพิ่ม Source (ใส่ URL ให้ครบ)
                     map.addSource(route.sourceId, {
                         type: 'geojson',
-                        data: `http://localhost:8001/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=${route.typeName}&OUTPUTFORMAT=application/json&SIMPLIFY=10`,
+                        data: `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=${route.typeName}&OUTPUTFORMAT=application/json&SIMPLIFY=10`,
                     });
 
                     // 2. เช็คตำแหน่งที่จะแทรก (ให้อยู่ใต้ไฟ)

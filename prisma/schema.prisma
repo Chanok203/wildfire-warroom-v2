@@ -12,17 +12,24 @@ datasource db {
   provider = "postgresql"
 }
 
-model WindData {
-  id        Int      @id @default(autoincrement())
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String   // อย่าลืม Hash ก่อนเก็บนะครับ
   createdAt DateTime @default(now())
-  sensorId  String
-  speed     Float
-  direction Int
-  sensorTs  Int
+}
 
-  @@index([sensorId])
-  @@index([createdAt])
-  @@map("wind_data")
+model ApiKey {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String?  // เอาไว้ระบุว่าเป็น Key ของใคร หรือใช้ทำอะไร
+  isActive    Boolean  @default(true)
+  
+  // เก็บไว้ดูประวัติเบื้องต้น
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime? 
+
+  @@index([key])
 }
 
 model Forecast {

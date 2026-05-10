@@ -9,38 +9,6 @@ import { prisma } from '@/shared/libs/prisma.lib';
 import { NotFoundError } from '@/shared/utils/error.utils';
 
 export class ForecastService {
-    async prepareFolder(id: string) {
-        const dir = path.join(config.app.forecastDir, id);
-        const inputDir = path.join(dir, 'input');
-        const outputDir = path.join(dir, 'output');
-        try {
-            await fs.mkdir(inputDir, { recursive: true });
-            await fs.mkdir(outputDir, { recursive: true });
-            return { dir, inputDir, outputDir };
-        } catch (error) {
-            throw new Error(`ไม่สามารถเตรียมโฟลเดอร์ได้`);
-        }
-    }
-
-    async create(id: string, inputData: any) {
-        try {
-            const forecast = await prisma.forecast.create({
-                data: {
-                    id: id,
-                    name: inputData.forecastName as string,
-                    droneName: inputData.droneId as string,
-                    latitude: Number(inputData.latitude),
-                    longitude: Number(inputData.longitude),
-                    inputData: inputData,
-                    aiStatus: AIStatus.IN_QUEUE,
-                },
-            });
-            return forecast;
-        } catch (error) {
-            console.error(error);
-            throw new Error(`[Forecast Create] Error`);
-        }
-    }
 
     async getById(id: string) {
         try {

@@ -1,45 +1,8 @@
 import { Request, Response } from 'express';
-import fs from 'fs/promises';
-import path from 'path';
-
-import { v4 as uuid4 } from 'uuid';
 
 import { ForecastService } from '@/modules/forecast/forecast.service';
-import { aiQueue } from '@/queues/queue';
-import { writeBase64ToFile } from '@/shared/utils/base64-to-image.util';
 
 const forecastService = new ForecastService();
-
-export const createForcast = async (req: Request, res: Response) => {
-    const { originalImage, detectedImage, ...inputData } = req.body;
-    try {
-        const forecastId = `forecast_${uuid4()}`;
-        const { dir, inputDir, outputDir } =
-            await forecastService.prepareFolder(forecastId);
-
-        writeBase64ToFile(originalImage, path.join(inputDir, 'original.jpg'));
-        writeBase64ToFile(detectedImage, path.join(inputDir, 'detected.jpg'));
-        await fs.writeFile(
-            path.join(inputDir, 'detection-response.json'),
-            JSON.stringify(inputData, null, 2),
-            'utf-8',
-        );
-        const forecast = await forecastService.create(forecastId, inputData);
-        aiQueue.add(`aiQueue`, {
-            id: forecast.id,
-            dir: dir,
-        });
-        res.json({
-            status: 'success',
-            data: {
-                forecast: { id: forecast.id },
-            },
-        });
-    } catch (error) {
-        console.error(error);
-        res.json({ status: 'error', message: 'ไม่สามารถสร้างการทำนายได้' });
-    }
-};
 
 export const getForcast = async (req: Request, res: Response) => {
     const forecastId = req.params.forecastId as string;
@@ -100,7 +63,7 @@ export const getForecastForMap = async (req: Request, res: Response) => {
                 data: 'Not Found',
             });
         }
-        const {inputData, ...data} = forecast;
+        const { inputData, ...data } = forecast;
         res.json({
             status: 'success',
             data: { forecast: data },
@@ -112,4 +75,4 @@ export const getForecastForMap = async (req: Request, res: Response) => {
             message: 'Internal Server Error',
         });
     }
-}
+};

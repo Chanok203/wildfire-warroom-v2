@@ -8,7 +8,6 @@ import nunjucks from 'nunjucks';
 
 import { config } from '@/configs';
 import { apiRouter, router } from '@/routes';
-import { bullBoardAdapter } from '@/shared/libs/bullboard.lib';
 import { sessionConfig } from '@/shared/libs/session';
 import { BadRequestError, NotFoundError } from '@/shared/utils/error.utils';
 
@@ -50,10 +49,8 @@ app.use(async (req, res, next) => {
     res.locals.flash_msg = req.flash();
     next();
 });
-
 app.use('/', router);
 app.use('/api', apiRouter);
-app.use('/admin/queues', bullBoardAdapter.getRouter());
 
 app.use((req, res, next) => {
     res.send('404 NotFound');

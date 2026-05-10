@@ -33,7 +33,7 @@
   "include": [
     "src",
     "prisma.config.ts",
-    "generated",
+    "generated"
   ],
   "exclude": [
     "node_modules",
