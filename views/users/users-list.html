@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}ผู้ใช้{% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" href="/public/vendor/data-tables/css/dataTables.bootstrap5.css">
+{% endblock style %}
+
+{% block content %}
+<h2>ผู้ใช้</h2>
+
+<div class="mb-3"></div>
+
+
+<div class="d-flex flex-row gap-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-modal">
+        <i class="bi bi-plus-lg"></i> สร้างผู้ใช้ใหม่
+    </button>
+</div>
+
+<div class="modal fade" id="create-modal" tabindex="-1" aria-labelledby="create-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="export-modal-label">สร้างผู้ใช้</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createForm" action="/users/create" method="post">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="username">ชื่อผู้ใช้:</label>
+                        <div class="col">
+                            <input type="text" name="username" id="username" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="password">รหัสผ่าน:</label>
+                        <div class="col">
+                            <input type="password" name="password" id="password" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="password2">ยืนยันรหัสผ่าน:</label>
+                        <div class="col">
+                            <input type="password" name="password2" id="password2" required class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">สร้างผู้ใช้</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="edit-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="export-modal-label">แก้ไขผู้ใช้</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editForm" method="post">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="username">ชื่อผู้ใช้:</label>
+                        <div class="col">
+                            <input type="text" name="username" id="username" disabled class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="password">รหัสผ่าน:</label>
+                        <div class="col">
+                            <input type="password" name="password" id="password" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="password2">ยืนยันรหัสผ่าน:</label>
+                        <div class="col">
+                            <input type="password" name="password2" id="password2" required class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">ยืนยัน</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table class="table table-stripped" id="users-table">
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>ชื่อผู้ใช้</th>
+            <th>สร้างเมื่อ</th>
+            <th>จัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in userList %}
+        <tr>
+            <td>{{loop.index}}</td>
+            <td>{{user.username}}</td>
+            <td>{{user.createdAt}}</td>
+            <td>
+                <div class="d-flex flex-row gap-3">
+                    <button type="button" class="btn btn-outline-warning edit-btn-trigger" data-bs-toggle="modal"
+                        data-bs-target="#edit-modal" data-id="{{user.id}}" data-username="{{user.username}}">
+                        <i class="bi bi-gear"></i> แก้ไข
+                    </button>
+                    <form action="/users/delete" method="post"
+                        onsubmit='return confirm("คุณแน่ใจใช่ไหมว่าจะลบผู้ใช้ {{user.username}}?")'>
+                        <input type="hidden" name="id" value="{{user.id}}">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i>ลบ
+                        </button>
+                    </form>
+                </div>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
+
+{% block scripts%}
+<script src="/public/vendor/data-tables/js/jquery-3.7.1.js"></script>
+<script src="/public/vendor/data-tables/js/dataTables.js"></script>
+<script src="/public/vendor/data-tables/js/dataTables.bootstrap5.js"></script>
+<script src="/public/js/users/users-list.js"></script>
+{% endblock scripts%}

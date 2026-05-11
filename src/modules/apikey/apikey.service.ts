@@ -5,14 +5,14 @@ import { prisma } from '@/shared/libs/prisma.lib';
 import { NotFoundError } from '@/shared/utils/error.utils';
 
 export class ApiKeyService {
-    async create(name: string): Promise<ApiKey> {
-        const key = await prisma.apiKey.create({
+    async create(name: string, key: string): Promise<ApiKey> {
+        const apikey = await prisma.apiKey.create({
             data: {
                 name: name,
-                key: uuidv4(),
+                key: key,
             },
         });
-        return key;
+        return apikey;
     }
 
     async getByKey(key: string): Promise<ApiKey> {
@@ -24,7 +24,17 @@ export class ApiKeyService {
     }
 
     async delete(key: string): Promise<void> {
-        await this.getByKey(key);
-        await prisma.apiKey.delete({ where: { key } });
+        const { id } = await this.getByKey(key);
+        await prisma.apiKey.delete({ where: { key: key } });
+    }
+
+    async getList(): Promise<ApiKey[]> {
+        try {
+            return await prisma.apiKey.findMany({
+                orderBy: { createdAt: 'desc' },
+            });
+        } catch (error) {
+            return [];
+        }
     }
 }

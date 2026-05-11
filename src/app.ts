@@ -39,7 +39,7 @@ app.use(async (req, res, next) => {
     if (req.method !== 'GET') return next();
 
     const isStaticFile = /\.(.*)$/.test(req.path);
-    const isApi = req.path.startsWith('/api');
+    const isApi = req.path.startsWith('/api/');
     const isHtml = req.accepts('html');
 
     if (isApi || isStaticFile || !isHtml) {
@@ -49,6 +49,7 @@ app.use(async (req, res, next) => {
     res.locals.flash_msg = req.flash();
     next();
 });
+
 app.use('/', router);
 app.use('/api', apiRouter);
 

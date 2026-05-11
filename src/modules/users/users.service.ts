@@ -72,4 +72,15 @@ export class UserService {
         await this.getById(id);
         await prisma.user.delete({ where: { id } });
     }
+
+    async getList(): Promise<User[]> {
+        try {
+            const users = await prisma.user.findMany({
+                orderBy: { createdAt: 'desc' },
+            });
+            return users;
+        } catch (error) {
+            return [];
+        }
+    }
 }

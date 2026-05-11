@@ -15,8 +15,8 @@ export const isAuthenticated = async (
             throw new Error();
         }
         const user = await userService.getById(userId);
-        req.user = user;
-        res.locals.user = user;
+        req.currentUser = user;
+        res.locals.currentUser = user;
         next();
     } catch (error) {
         req.flash('danger', 'กรุณาเข้าสู่ระบบ');

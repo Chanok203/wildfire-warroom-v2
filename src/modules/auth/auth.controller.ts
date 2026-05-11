@@ -8,7 +8,7 @@ const entity = 'auth';
 const userService = new UserService();
 
 export const renderLoginView = async (req: Request, res: Response) => {
-    res.render('auth/login.html', { entity });
+    res.render('auth/auth-login.html', { entity });
 };
 
 export const handleLogin = async (req: Request, res: Response) => {
@@ -23,11 +23,11 @@ export const handleLogin = async (req: Request, res: Response) => {
         if (!isMatch) throw new BadRequestError(`Invalid password`);
         req.session.userId = user.id;
         req.flash('success', `ยินดีต้อนรับคุณ ${username}`);
-        res.redirect('/');
+        return res.redirect('/forecast/view');
     } catch (error) {
         const errorMsg = `ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง`;
         req.flash('danger', errorMsg);
-        res.render('auth/login.html', { entity, errorMsg });
+        return res.redirect('/auth/login');
     }
 };
 
