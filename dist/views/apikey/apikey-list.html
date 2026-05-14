@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}API Key{% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" href="/public/vendor/data-tables/css/dataTables.bootstrap5.css">
+{% endblock style %}
+
+{% block content %}
+<h2>API Key</h2>
+
+<div class="mb-3"></div>
+
+
+<div class="d-flex flex-row gap-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-modal">
+        <i class="bi bi-plus-lg"></i> สร้าง API Key
+    </button>
+</div>
+
+<div class="modal fade" id="create-modal" tabindex="-1" aria-labelledby="create-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="export-modal-label">สร้าง API Key</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createForm" action="/apikey/create" method="post">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="name">ชื่อ:</label>
+                        <div class="col">
+                            <input type="text" name="name" id="name" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label" for="key">API Key:</label>
+                        <div class="col">
+                            <input type="text" name="key" id="key" required class="form-control">
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary" id="genKeyBtn" type="button">
+                        สุ่ม Key
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">สร้าง</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table class="table table-stripped" id="apikey-table">
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>ชื่อ</th>
+            <th>API Key</th>
+            <th>สร้างเมื่อ</th>
+            <th>จัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for apiKey in apiKeyList %}
+        <tr>
+            <td>{{loop.index}}</td>
+            <td>{{apiKey.name}}</td>
+            <td>{{apiKey.key}}</td>
+            <td>{{apiKey.createdAt}}</td>
+            <td>
+                <div class="d-flex flex-row gap-3">
+                    <form action="/apikey/delete" method="post"
+                        onsubmit='return confirm("คุณแน่ใจใช่ไหมว่าจะลบ API Key ({{apiKey.name}})?")'>
+                        <input type="hidden" name="key" value="{{apiKey.key}}">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i>ลบ
+                        </button>
+                    </form>
+                </div>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
+
+{% block scripts%}
+<script src="/public/vendor/data-tables/js/jquery-3.7.1.js"></script>
+<script src="/public/vendor/data-tables/js/dataTables.js"></script>
+<script src="/public/vendor/data-tables/js/dataTables.bootstrap5.js"></script>
+<script src="/public/js/apikey/apikey-list.js"></script>
+{% endblock scripts%}

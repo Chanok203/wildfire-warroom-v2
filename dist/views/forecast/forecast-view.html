@@ -78,7 +78,10 @@
 <script src="/public/vendor/maplibre-gl/js/maplibre-gl.js"></script>
 <script>
     const serverForecastId = "{{ forecastId }}";
+    const serverQgisUrl = "{{qgisUrl}}";
+
     window.initForecastId = serverForecastId || "";
+    window.initQgisUrl = serverQgisUrl || "";
 </script>
 <script src="/public/js/forecast/forecast-view.js"></script>
 {% endblock scripts %}

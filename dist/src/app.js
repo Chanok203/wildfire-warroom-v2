@@ -12,7 +12,6 @@ const morgan_1 = __importDefault(require("morgan"));
 const nunjucks_1 = __importDefault(require("nunjucks"));
 const configs_1 = require("./configs");
 const routes_1 = require("./routes");
-const bullboard_lib_1 = require("./shared/libs/bullboard.lib");
 const session_1 = require("./shared/libs/session");
 const error_utils_1 = require("./shared/utils/error.utils");
 exports.app = (0, express_1.default)();
@@ -39,7 +38,7 @@ exports.app.use(async (req, res, next) => {
     if (req.method !== 'GET')
         return next();
     const isStaticFile = /\.(.*)$/.test(req.path);
-    const isApi = req.path.startsWith('/api');
+    const isApi = req.path.startsWith('/api/');
     const isHtml = req.accepts('html');
     if (isApi || isStaticFile || !isHtml) {
         return next();
@@ -49,7 +48,6 @@ exports.app.use(async (req, res, next) => {
 });
 exports.app.use('/', routes_1.router);
 exports.app.use('/api', routes_1.apiRouter);
-exports.app.use('/admin/queues', bullboard_lib_1.bullBoardAdapter.getRouter());
 exports.app.use((req, res, next) => {
     res.send('404 NotFound');
 });

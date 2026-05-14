@@ -1,42 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getForecastForMap = exports.getForecastList = exports.getForcast = exports.createForcast = void 0;
-const promises_1 = __importDefault(require("fs/promises"));
-const path_1 = __importDefault(require("path"));
-const uuid_1 = require("uuid");
+exports.getForecastForMap = exports.getForecastList = exports.getForcast = void 0;
 const forecast_service_1 = require("../../modules/forecast/forecast.service");
-const queue_1 = require("../../queues/queue");
-const base64_to_image_util_1 = require("../../shared/utils/base64-to-image.util");
 const forecastService = new forecast_service_1.ForecastService();
-const createForcast = async (req, res) => {
-    const { originalImage, detectedImage, ...inputData } = req.body;
-    try {
-        const forecastId = `forecast_${(0, uuid_1.v4)()}`;
-        const { dir, inputDir, outputDir } = await forecastService.prepareFolder(forecastId);
-        (0, base64_to_image_util_1.writeBase64ToFile)(originalImage, path_1.default.join(inputDir, 'original.jpg'));
-        (0, base64_to_image_util_1.writeBase64ToFile)(detectedImage, path_1.default.join(inputDir, 'detected.jpg'));
-        await promises_1.default.writeFile(path_1.default.join(inputDir, 'detection-response.json'), JSON.stringify(inputData, null, 2), 'utf-8');
-        const forecast = await forecastService.create(forecastId, inputData);
-        queue_1.aiQueue.add(`aiQueue`, {
-            id: forecast.id,
-            dir: dir,
-        });
-        res.json({
-            status: 'success',
-            data: {
-                forecast: { id: forecast.id },
-            },
-        });
-    }
-    catch (error) {
-        console.error(error);
-        res.json({ status: 'error', message: 'ไม่สามารถสร้างการทำนายได้' });
-    }
-};
-exports.createForcast = createForcast;
 const getForcast = async (req, res) => {
     const forecastId = req.params.forecastId;
     try {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}พื้นฐาน{% endblock title %} | หน้างาน (Edge)</title>
+    <title>{% block title %}พื้นฐาน{% endblock title %} | ศูนย์บัญชาการ (War Room)</title>
 
     <link rel="stylesheet" href="/public/css/bootstrap.css">
     <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
@@ -22,19 +22,32 @@
                 aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                    <a class="nav-link {% if entity == 'wind' %}active{% endif %}" href="/wind">เซ็นเซอร์ลม</a>
-                    <a class="nav-link {% if entity == 'drones' %}active{% endif %}" href="/drones">โดรน</a>
-                    <a class="nav-link {% if entity == 'hotspot-manager' %}active{% endif %}" href="/hotspot-manager">ตรวจจับหัวไฟ</a>
-                    <a class="nav-link {% if entity == 'forecast' %}active{% endif %}" href="/forecast">ทำนาย</a>
+            <div class="collapse navbar-collapse align-items-center" id="navbarNavAltMarkup">
+                {% if currentUser %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if entity == 'users' %}active{% endif %}" href="/users">ผู้ใช้</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if entity == 'apikey' %}active{% endif %}" href="/apikey">API Key</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if entity == 'forecast' %}active{% endif %}" href="/forecast">ทำนาย</a>
+                    </li>
+                </ul>
                 
-                </div>
+                <p class="navbar-nav align-items-center me-2">
+                    สวัสดี, {{currentUser.username}}
+                </p>
+
+                <form class="d-flex" action="/auth/logout" method="POST">
+
+                    <button class="btn btn-outline-danger" type="submit">logout</button>
+                </form>
+                {% endif %}
             </div>
         </div>
     </nav>
-
-
 
     <div class="container-fluid p-3">
         {% for key, msg in flash_msg %}

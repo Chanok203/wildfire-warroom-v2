@@ -7,15 +7,7 @@ require("dotenv/config");
 const http_1 = __importDefault(require("http"));
 const app_1 = require("./app");
 const configs_1 = require("./configs");
-const wind_mqtt_1 = require("./modules/wind/wind.mqtt");
-const mqtt_lib_1 = require("./shared/libs/mqtt.lib");
-const socketio_lib_1 = require("./shared/libs/socketio.lib");
-const worker_1 = require("./queues/worker");
 const httpServer = http_1.default.createServer(app_1.app);
-socketio_lib_1.socketLib.init(httpServer);
-mqtt_lib_1.mqttLib.connect(configs_1.config.mqtt.url);
-(0, wind_mqtt_1.initWindSensorMQTT)();
-(0, worker_1.initWorker)();
 const { port, host } = configs_1.config.app;
 httpServer.listen(port, host, () => {
     console.log(`Server is running at http://${host}:${port}`);

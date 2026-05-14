@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build:css": "yarn sass scss/bootstrap.scss public/css/bootstrap.css",
-    "build": "rimraf dist && tsc && tsc-alias && copyfiles -u 0 public/**/* views/**/* dist/",
+    "build": "node src/scripts/clean.js && tsc && tsc-alias && copyfiles -u 0 public/**/* views/**/* dist/",
     "production": "cross-env NODE_ENV=production node dist/src/server.js",
     "dev": "cross-env NODE_ENV=development yarn nodemon",
     "seed:user": "cross-env NODE_ENV=development yarn tsx src/scripts/createUser.ts"
