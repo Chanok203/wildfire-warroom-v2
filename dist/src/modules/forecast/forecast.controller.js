@@ -36,9 +36,22 @@ const handleUploadForecast = async (req, res) => {
     try {
         const key = req.headers['x-api-key'];
         if (!key) {
-            throw new Error('API Key is missing');
+            return res.status(400).json({
+                status: 'fail',
+                data: null,
+                message: 'apikey is missing',
+            });
         }
-        const apiKey = await apiKeyService.getByKey(key);
+        try {
+            const apiKey = await apiKeyService.getByKey(key);
+        }
+        catch (error) {
+            return res.status(403).json({
+                status: 'fail',
+                data: null,
+                message: 'invalid apikey',
+            });
+        }
         if (!file) {
             throw new Error(`No file uploaded`);
         }
@@ -63,6 +76,7 @@ const handleUploadForecast = async (req, res) => {
                 pushStatus: 'PUSHED',
                 latitude: inputData.latitude,
                 longitude: inputData.longitude,
+                startTime: new Date(inputData.startTime)
             },
         });
         const jsonPath = path_1.default.join(extractPath, 'output', 'result.json');

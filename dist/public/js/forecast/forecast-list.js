@@ -33,7 +33,7 @@ const table = $('#forecast-table').DataTable({
     order: [[0, 'desc']],
     columns: [
         {
-            data: 'createdAt',
+            data: 'startTime',
             render: function (data) {
                 if (!data) return '-';
                 const date = new Date(data);

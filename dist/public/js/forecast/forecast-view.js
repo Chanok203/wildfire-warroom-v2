@@ -7,13 +7,21 @@ const pastMinsInput = document.getElementById('past_mins');
 const futureMinsInput = document.getElementById('future_mins');
 const submitBtn = document.getElementById('submitBtn');
 const filterForm = document.getElementById('filter-form');
+const minTimeSpan = document.getElementById('minTime');
+const maxTimeSpan = document.getElementById('maxTime');
 
 const formatToLocalISO = (date) => {
     const tzOffset = date.getTimezoneOffset() * 60000;
     return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
 };
 
+const toLocalDate = (isoStr) => {
+    const tzOffset = new Date().getTimezoneOffset() * 60000; // -420 * 60000
+    return new Date(new Date(isoStr).getTime() - tzOffset);
+};
+
 // init value
+let fireGeoJSON = null;
 const now = new Date();
 refTimeInput.value = formatToLocalISO(now);
 pastMinsInput.value = 30;
@@ -60,22 +68,24 @@ function applyFireFilter(shouldFetch = false) {
     const endTime = new Date(refDate.getTime() + future * 60000).toISOString();
 
     const source = map.getSource('fire-source');
+    const freshWfsUrl = `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`;
 
     // ถ้าสั่งให้ Fetch ใหม่ (เช่น ตอนกดปุ่ม)
     if (shouldFetch && source) {
-        console.log('Fetching fresh data...');
-        const freshWfsUrl = `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`;
-        source.setData(freshWfsUrl);
-
-        // รอให้ข้อมูลใหม่มาค่อยกรอง
-        map.once('data', (e) => {
-            if (
-                e.sourceId === 'fire-source' &&
-                map.isSourceLoaded('fire-source')
-            ) {
-                executeFilter(startTime, endTime);
-            }
-        });
+        fetch(freshWfsUrl)
+            .then((r) => r.json())
+            .then((geojson) => {
+                fireGeoJSON = addUnixTime(geojson);
+                source.setData(fireGeoJSON);
+                map.once('data', (e) => {
+                    if (
+                        e.sourceId === 'fire-source' &&
+                        map.isSourceLoaded('fire-source')
+                    ) {
+                        executeFilter(startTime, endTime);
+                    }
+                });
+            });
     } else {
         // ถ้าเป็นการกรองปกติ (เช่น ตอนโหลดหน้าเว็บครั้งแรก)
         executeFilter(startTime, endTime);
@@ -88,6 +98,38 @@ function executeFilter(start, end) {
     const endISO = new Date(end).toISOString();
     const startClean = startISO.slice(0, 16);
     const endClean = endISO.slice(0, 16);
+
+    if (fireGeoJSON && fireGeoJSON.features) {
+        const times = fireGeoJSON.features
+            .map((f) => f.properties.target_time)
+            .filter(Boolean)
+            .sort();
+        const filteredTimes = times.filter(
+            (t) => t.slice(0, 16) >= startClean && t.slice(0, 16) <= endClean,
+        );
+        console.log('=== Filter Applied ===');
+        console.log('Filter range:', startClean, '→', endClean);
+
+        console.log('Total features:', filteredTimes.length);
+
+        if (filteredTimes.length > 0) {
+            console.log('Data min:', filteredTimes[0]);
+            console.log('Data max:', filteredTimes[filteredTimes.length - 1]);
+
+            minTimeSpan.innerHTML = toLocalDate(
+                new Date(filteredTimes[0]),
+            ).toLocaleString('th-TH', {
+                dateStyle: 'long',
+                timeStyle: 'medium',
+            });
+            maxTimeSpan.innerHTML = toLocalDate(
+                new Date(filteredTimes[filteredTimes.length - 1]),
+            ).toLocaleString('th-TH', {
+                dateStyle: 'long',
+                timeStyle: 'medium',
+            });
+        }
+    }
 
     const filter = [
         'all',
@@ -117,6 +159,12 @@ function executeFilter(start, end) {
     if (map.getLayer('fire-layer-fill')) {
         map.setFilter('fire-layer-fill', filter);
 
+        map.setLayoutProperty('fire-layer-fill', 'fill-sort-key', [
+            '*',
+            -1,
+            ['to-number', ['get', 'target_time_unix']],
+        ]);
+
         map.setPaintProperty('fire-layer-fill', 'fill-color', [
             'case',
             // ก้อนที่เกิดก่อน refTime (อดีตตามที่ระบุใน past mins) -> สีเทา
@@ -139,22 +187,22 @@ function executeFilter(start, end) {
             '#ffcc00',
         ]);
 
-        map.setPaintProperty('fire-layer-fill', 'fill-opacity', [
-            'case',
-            [
-                '<',
-                ['slice', ['to-string', ['get', 'target_time']], 0, 16],
-                refTimeClean,
-            ],
-            0.4,
-            [
-                '<=',
-                ['slice', ['to-string', ['get', 'target_time']], 0, 16],
-                fiveMinsDeadline,
-            ],
-            0.85,
-            0.5,
-        ]);
+        // map.setPaintProperty('fire-layer-fill', 'fill-opacity', [
+        //     'case',
+        //     [
+        //         '<',
+        //         ['slice', ['to-string', ['get', 'target_time']], 0, 16],
+        //         refTimeClean,
+        //     ],
+        //     0.4,
+        //     [
+        //         '<=',
+        //         ['slice', ['to-string', ['get', 'target_time']], 0, 16],
+        //         fiveMinsDeadline,
+        //     ],
+        //     0.85,
+        //     0.5,
+        // ]);
     }
 
     if (map.getLayer('fire-layer-outline')) {
@@ -168,33 +216,42 @@ function executeFilter(start, end) {
 // เพิ่มปุ่มควบคุม (Zoom In/Out)
 map.addControl(new maplibregl.NavigationControl(), 'top-left');
 
+function addUnixTime(geojson) {
+    geojson.features = geojson.features.map((f) => ({
+        ...f,
+        properties: {
+            ...f.properties,
+            target_time_unix: new Date(f.properties.target_time).getTime(),
+        },
+    }));
+    return geojson;
+}
+
 function setupFireLayers() {
-    map.addSource('fire-source', {
-        type: 'geojson',
-        data: `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`,
-    });
+    const wfsUrl = `${qgisUrl}/ows/?MAP=/data/edge.qgs&SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAME=fire_forecast&OUTPUTFORMAT=application/json`;
 
-    map.addLayer({
-        id: 'fire-layer-outline',
-        type: 'line',
-        source: 'fire-source',
-        paint: {
-            'line-color': '#ffffff',
-            'line-width': 2,
-            'line-opacity': 0.8,
-        },
-    });
-
-    map.addLayer({
-        id: 'fire-layer-fill',
-        type: 'fill',
-        source: 'fire-source',
-        paint: {
-            // ตั้งค่าพื้นฐานไว้ก่อน executeFilter จะมาทับค่านี้เองครับ
-            'fill-color': '#ff1a1a',
-            'fill-opacity': 0.5,
-        },
-    });
+    fetch(wfsUrl)
+        .then((r) => r.json())
+        .then((geojson) => {
+            fireGeoJSON = addUnixTime(geojson);
+            map.addSource('fire-source', {
+                type: 'geojson',
+                data: geojson,
+            });
+            map.addLayer({
+                id: 'fire-layer-fill',
+                type: 'fill',
+                source: 'fire-source',
+                layout: {
+                    'fill-sort-key': ['to-number', ['get', 'target_time_unix']],
+                },
+                paint: {
+                    // ตั้งค่าพื้นฐานไว้ก่อน executeFilter จะมาทับค่านี้เองครับ
+                    'fill-color': '#ff1a1a',
+                    'fill-opacity': 1.0,
+                },
+            });
+        });
 
     map.on('idle', function initialFilter() {
         if (map.getSource('fire-source') && map.isSourceLoaded('fire-source')) {

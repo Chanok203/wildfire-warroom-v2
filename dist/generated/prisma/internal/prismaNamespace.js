@@ -139,6 +139,7 @@ exports.ForecastScalarFieldEnum = {
     pushStatus: 'pushStatus',
     latitude: 'latitude',
     longitude: 'longitude',
+    startTime: 'startTime',
     inputData: 'inputData',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
