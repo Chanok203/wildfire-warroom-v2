@@ -163,7 +163,7 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
         });
     } catch (error) {
         if (file && fs.existsSync(file.path)) {
-            fs.unlinkSync(file.path);
+            // fs.unlinkSync(file.path);
         }
         console.log(error);
 
