@@ -65,10 +65,12 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
         const forecastId = path.parse(file.originalname).name;
         const extractPath = path.join(config.app.forecastDir, forecastId);
 
-        await fs
-            .createReadStream(file.path)
-            .pipe(unzipper.Extract({ path: extractPath }))
-            .promise();
+        await new Promise<void>((resolve, reject) => {
+            fs.createReadStream(file.path)
+                .pipe(unzipper.Extract({ path: extractPath }))
+                .on('finish', resolve)
+                .on('error', reject);
+        });
 
         const inputData = JSON.parse(
             fs.readFileSync(
@@ -91,7 +93,7 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
                 pushStatus: 'PUSHED',
                 latitude: inputData.latitude,
                 longitude: inputData.longitude,
-                startTime: new Date(inputData.startTime)
+                startTime: new Date(inputData.startTime),
             },
         });
 
