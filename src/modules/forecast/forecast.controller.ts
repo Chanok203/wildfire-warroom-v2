@@ -92,6 +92,9 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
             ),
         );
 
+        console.log(`inputData.startTime = ${inputData.startTime}`)
+        console.log(`new Date(inputData.startTime) = ${new Date(inputData.startTime)}`)
+
         await prisma.forecast.upsert({
             where: { id: forecastId },
             update: {
@@ -131,7 +134,6 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
                 });
 
                 // 3. ใช้ Transaction เพื่อลบข้อมูลเก่าและเพิ่มข้อมูลใหม่
-                const firstValidAt = results[0].validAt;
                 await prisma.$transaction([
                     prisma.forecastResult.deleteMany({
                         where: { forecastId: forecastId },
@@ -142,7 +144,6 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
                     prisma.forecast.update({
                         where: { id: forecastId },
                         data: {
-                            createdAt: firstValidAt, // นำค่าจากผลลัพธ์ตัวแรกมาใส่
                             aiStatus: 'COMPLETED', // อัปเดตสถานะไปพร้อมกันเลย
                             pushStatus: 'PUSHED',
                         },
@@ -163,7 +164,7 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
         });
     } catch (error) {
         if (file && fs.existsSync(file.path)) {
-            // fs.unlinkSync(file.path);
+            fs.unlinkSync(file.path);
         }
         console.log(error);
 
