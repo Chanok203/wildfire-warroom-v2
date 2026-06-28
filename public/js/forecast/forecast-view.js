@@ -488,8 +488,8 @@ map.on('load', async () => {
             }
 
             // 2. เซตเวลา 'เวลาที่ตรวจสอบ' (refTimeInput) ให้เป็นเวลาที่สร้าง Forecast
-            if (forecast.createdAt) {
-                const createdDate = new Date(forecast.createdAt);
+            if (forecast.startTime) {
+                const createdDate = new Date(forecast.startTime);
                 // ใช้ฟังก์ชัน formatToLocalISO ที่คุณเขียนไว้ด้านบน
                 refTimeInput.value = formatToLocalISO(createdDate);
                 console.log(`Input time set to: ${refTimeInput.value}`);

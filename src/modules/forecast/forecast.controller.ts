@@ -92,10 +92,8 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
             ),
         );
 
-        console.log(`inputData.startTime = ${inputData.startTime}`)
-        console.log(`new Date(inputData.startTime) = ${new Date(inputData.startTime)}`)
 
-        const result = await prisma.forecast.upsert({
+        await prisma.forecast.upsert({
             where: { id: forecastId },
             update: {
                 aiStatus: 'COMPLETED',
@@ -112,7 +110,6 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
                 startTime: new Date(inputData.startTime),
             },
         });
-        console.log('saved startTime:', result.startTime?.toISOString());
 
         const jsonPath = path.join(extractPath, 'output', 'result.json');
         if (fs.existsSync(jsonPath)) {
