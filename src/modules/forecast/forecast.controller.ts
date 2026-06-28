@@ -71,6 +71,9 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
                 .on('finish', resolve)
                 .on('error', reject);
         });
+        console.log('Extract done, checking files...');
+        const extracted = fs.readdirSync(extractPath, { recursive: true });
+        console.log('Extracted files:', extracted);
 
         const inputData = JSON.parse(
             fs.readFileSync(
