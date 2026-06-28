@@ -128,6 +128,9 @@ function executeFilter(start, end) {
                 dateStyle: 'long',
                 timeStyle: 'medium',
             });
+        } else {
+            minTimeSpan.innerHTML = "-"
+            maxTimeSpan.innerHTML = "-"
         }
     }
 
