@@ -65,12 +65,22 @@ export const handleUploadForecast = async (req: Request, res: Response) => {
         const forecastId = path.parse(file.originalname).name;
         const extractPath = path.join(config.app.forecastDir, forecastId);
 
+        console.log('Starting extract to:', extractPath);
+
         await new Promise<void>((resolve, reject) => {
             fs.createReadStream(file.path)
                 .pipe(unzipper.Extract({ path: extractPath }))
-                .on('finish', resolve)
-                .on('error', reject);
+                .on('finish', () => {
+                    console.log('Extract finished!');
+                    resolve();
+                })
+                .on('error', (err) => {
+                    console.log('Extract error:', err);
+                    reject(err);
+                });
         });
+
+        console.log('After extract');
         console.log('Extract done, checking files...');
         const extracted = fs.readdirSync(extractPath, { recursive: true });
         console.log('Extracted files:', extracted);
